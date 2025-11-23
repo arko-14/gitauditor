@@ -1,38 +1,34 @@
 import os
 from crewai import Agent, Task, Crew, Process
-from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Setup Gemini 1.5 Flash
-llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
-    verbose=True,
-    temperature=0.1,
-    google_api_key=os.getenv("GOOGLE_API_KEY")
-)
+# NOTE: We do not need to import ChatGoogleGenerativeAI anymore.
+# CrewAI will handle the connection automatically using the string "gemini/..."
 
 def run_agent_crew(diff_text):
-    # Agent 1: The Tech Lead (Strict Reviewer)
+    # Agent 1: The Tech Lead
     reviewer = Agent(
         role='Senior Backend Engineer',
         goal='Analyze code for critical bugs, security flaws, and bad practices.',
         backstory="""You are a strict code reviewer. You hate logical errors, 
         security risks (like SQL injection), and messy code. 
         You focus on the Code Diff provided.""",
-        llm=llm,
+        # FIX: Use string format "gemini/<model_name>"
+        llm="gemini/gemini-2.5-pro",
         verbose=True
     )
 
-    # Agent 2: The Release Manager (Decision Maker)
+    # Agent 2: The Release Manager
     manager = Agent(
         role='Release Manager',
         goal='Decide if the PR should be APPROVED or REQUEST_CHANGES.',
         backstory="""You read the technical review and make the final call. 
         If there are bugs/security issues, you REQUEST_CHANGES. 
         If it is just style nitpicks or clean code, you APPROVE.""",
-        llm=llm,
+        # FIX: Use string format "gemini/<model_name>"
+        llm="gemini/gemini-2.5-pro",
         verbose=True
     )
 
@@ -43,20 +39,37 @@ def run_agent_crew(diff_text):
         agent=reviewer
     )
 
-    # Task 2: Final Verdict
-    # We strictly format the output so our API can read it easily
+    # Task 2: Final Verdict with Auto-Fix
     decision_task = Task(
         description="""
-        Based on the technical review, provide a final decision.
+        Based on the technical review, provide a final decision and FIXED code examples.
         
-        YOUR OUTPUT MUST LOOK EXACTLY LIKE THIS:
+        YOUR OUTPUT MUST STRICTLY FOLLOW THIS MARKDOWN FORMAT:
+        
         VERDICT: [APPROVE or REQUEST_CHANGES]
-        SUMMARY: [1-2 sentences explaining why]
-        DETAILS: [Bullet points of key issues]
+        
+        # Gitauditor Review
+        
+        ## 🔍 Summary
+        [1-2 sentences explaining the overall quality]
+        
+        ## 🛠️ Issues & Fixes
+        
+        ### 1. [Issue Title] (Severity: High/Medium/Low)
+        **Problem:** [Explanation of the bug]
+        **Suggested Fix:**
+        ```python
+        # Write the CORRECTED code here
+        def secure_function():
+            # Logic without the bug
+            ...
+        ```
+        
+        *(Repeat for other issues. If no issues, say "Code looks clean! 🚀")*
         """,
-        expected_output="Formatted decision string.",
+        expected_output="Markdown formatted review with code fixes.",
         agent=manager,
-        context=[review_task] # Wait for reviewer
+        context=[review_task]
     )
 
     crew = Crew(
