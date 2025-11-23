@@ -27,7 +27,7 @@ graph TD
     B --> C{CrewAI Orchestrator}
     C -->|Task 1: Analyze Diff| D[🕵️‍♂️ Senior Reviewer Agent]
     C -->|Task 2: Final Verdict| E[⚖️ Release Manager Agent]
-    D <-->|LLM Inference| F[Groq / Gemini API]
+    D <-->|LLM Inference| F[Gemini API]
     E <-->|LLM Inference| F
     E -->|JSON Verdict| B
     B -->|POST Review| G[GitHub API]
@@ -39,9 +39,8 @@ graph TD
 
   * **Backend Framework:** FastAPI (Python)
   * **Orchestration:** CrewAI (Agentic Workflows)
-  * **LLM Engine:** Google Gemini 1.5 Flash / Groq (Llama-3.3-70b)
+  * **LLM Engine:** Google Gemini 2.5 Flash 
   * **Git Integration:** PyGithub
-  * **Deployment:** Render / Uvicorn
 
 -----
 
@@ -114,5 +113,5 @@ MIT
 
 ```
 
--
+
 
