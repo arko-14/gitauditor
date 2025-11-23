@@ -1,13 +1,12 @@
 
 
-````markdown
+
 # Gitauditor
 
  Autonomous Multi-Agent Code Reviewer
 
 **Gitauditor** is an intelligent CI/CD agent that autonomously reviews GitHub Pull Requests. Unlike standard static analysis tools, it uses a **Multi-Agent Architecture (CrewAI)** to "think" like a human engineering team, detecting logic bugs, security flaws, and style issues before they merge.
 
----
 
 ## 🚀 Features
 
@@ -18,7 +17,7 @@
 * **🚀 Inference:** Optimized for **Gemini 2.5 Pro** for inference latency and massive context windows.
 * **🔗 Formal GitHub Integration:** Connects directly to the GitHub API to block merges on critical issues using formal PR reviews.
 
----
+
 
 ## 🏗️ System Architecture
 
@@ -116,3 +115,4 @@ MIT
 ```
 
 -
+
